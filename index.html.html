@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI PPLG - Analisis Profesi & Prospektus Startup | SMKS Wikrama Bogor</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eeeefa',
+                            100: '#d8d7f5',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js & Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .glass-card { background: white !important; border: 1px solid #ccc !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col custom-scrollbar overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- MAIN HEADER & NAV -->
+    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                
+                <!-- Brand Title -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-400 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
+                        <i class="fa-solid font-bold fa-code"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold text-white tracking-tight leading-tight">
+                            MPI PPLG <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Fase E</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 font-medium hidden sm:block">SMKS WIKRAMA BOGOR — Analisis Profesi & Prospektus Startup</p>
+                    </div>
+                </div>
+
+                <!-- Progress Tracker Widget -->
+                <div class="hidden md:flex items-center gap-3 bg-slate-800/80 px-4 py-1.5 rounded-full border border-slate-700/60">
+                    <div class="text-xs font-semibold text-slate-300">Progres Pembelajaran:</div>
+                    <div class="w-32 bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                        <div id="overall-progress-bar" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                    <span id="overall-progress-text" class="text-xs font-bold text-emerald-400 min-w-[35px]">0%</span>
+                </div>
+
+                <!-- Reset Button -->
+                <button onclick="resetData()" title="Reset Progres" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-all">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex overflow-x-auto custom-scrollbar gap-1 py-2 text-xs sm:text-sm font-medium border-t border-slate-800/60">
+                <button onclick="switchTab('beranda')" id="nav-beranda" class="tab-btn px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap transition-all bg-indigo-600 text-white font-semibold">
+                    <i class="fa-solid fa-house"></i> <span>1. Beranda & Apersepsi</span>
+                </button>
+                <button onclick="switchTab('loker')" id="nav-loker" class="tab-btn px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-briefcase"></i> <span>2. Bedah Loker (Literasi A.1.1)</span>
+                </button>
+                <button onclick="switchTab('startup')" id="nav-startup" class="tab-btn px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-rocket"></i> <span>3. Simulator Startup (Literasi A.1.5)</span>
+                </button>
+                <button onclick="switchTab('refleksi')" id="nav-refleksi" class="tab-btn px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-pen-to-square"></i> <span>4. Refleksi & Asesmen Karir</span>
+                </button>
+                <button onclick="switchTab('guru')" id="nav-guru" class="tab-btn px-4 py-2 rounded-lg flex items-center gap-2 whitespace-nowrap transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-chalkboard-user"></i> <span>5. Rubrik Guru & Rekap</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+        <!-- ================= TAB 1: BERANDA & APERSEPSI ================= -->
+        <section id="tab-content-beranda" class="tab-content space-y-6">
+            
+            <!-- Hero Banner -->
+            <div class="glass-card rounded-2xl p-6 sm:p-8 relative overflow-hidden border-indigo-500/20">
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-3xl space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
+                        <i class="fa-solid fa-graduation-cap"></i> Modul Ajar Kurikulum Merdeka - Fase E PPLG
+                    </div>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                        Eksplorasi Karir IT & Peluang Technopreneurship PPLG
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Selamat datang di Media Pembelajaran Interaktif. Di sini kamu akan berlatih membedah kualifikasi profesi perangkat lunak secara presisi serta menguji kemampuan evaluasi prospek startup teknologi nyata!
+                    </p>
+                    
+                    <!-- CP & TP Accordion Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-xs space-y-1">
+                            <span class="text-indigo-400 font-bold uppercase tracking-wider block"><i class="fa-solid fa-bullseye"></i> Capaian Pembelajaran (CP)</span>
+                            <p class="text-slate-300">Mendeskripsikan proses bisnis PPLG meliputi tugas profesi, pengalihan pengembangan, serta analisis peluang usaha technopreneurship secara kritis.</p>
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-xs space-y-1">
+                            <span class="text-emerald-400 font-bold uppercase tracking-wider block"><i class="fa-solid fa-list-check"></i> Fokus Target Literasi</span>
+                            <p class="text-slate-300">
+                                <strong>A.1.1:</strong> Mengidentifikasi informasi eksplisit dari teks lowongan kerja.<br>
+                                <strong>A.1.5:</strong> Mengevaluasi kelayakan bisnis & merefleksikan pilihan karir.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISUAL KOMPARASI: Corporate vs Startup Dilemma -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-indigo-400"></i> Corporate vs Startup Dilemma
+                    </h3>
+                    <span class="text-xs text-slate-400">Pilih kartu untuk melihat dinamika dunia kerja</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Option A: Kantoran / Korporasi -->
+                    <div onclick="selectDilemma('corporate')" id="card-corporate" class="glass-card glass-card-hover rounded-2xl p-6 cursor-pointer transition-all border-2 border-transparent">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl font-bold">
+                                <i class="fa-solid fa-building"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-semibold">Korporasi Mapan</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Kerja Kantoran (Corporate Web Dev)</h4>
+                        <p class="text-slate-400 text-xs mb-4">Lingkungan kerja terstruktur, jobdesk spesifik, fasilitas lengkap, risiko bisnis ditanggung perusahaan.</p>
+                        <ul class="text-xs text-slate-300 space-y-2">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Skalabilitas sistem besar & legacy code</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Penjenjangan karir terencana</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Fokus pada spesialisasi tech stack tertentu</li>
+                        </ul>
+                    </div>
+
+                    <!-- Option B: Startup Co-Working Space -->
+                    <div onclick="selectDilemma('startup')" id="card-startup" class="glass-card glass-card-hover rounded-2xl p-6 cursor-pointer transition-all border-2 border-transparent">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-bold">
+                                <i class="fa-solid fa-rocket"></i>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">Merintis Startup</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Rintis Startup (Technopreneur)</h4>
+                        <p class="text-slate-400 text-xs mb-4">Lingkungan kerja dinamis di Co-Working Space, fleksibel, multi-peran, ritme tinggi, kepemilikan saham/produk.</p>
+                        <ul class="text-xs text-slate-300 space-y-2">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Inovasi cepat & produk baru dari nol</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Menuntut skill 3H (Hacker, Hustler, Hipster)</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Tantangan tinggi dalam mitigasi risiko pasar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE POLLING WIDGET -->
+            <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6 border-indigo-500/30">
+                <div class="space-y-2">
+                    <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest"><i class="fa-solid fa-square-poll-vertical"></i> Pertanyaan Pemantik Interactive</span>
+                    <h3 class="text-lg sm:text-xl font-bold text-white leading-snug">
+                        "Manakah yang lebih menantang: melamar pekerjaan sebagai Web Developer di perusahaan besar yang sudah mapan, ATAU merintis startup teknologi (seperti aplikasi kasir UMKM) dari nol?"
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <!-- Polling Options -->
+                    <div id="poll-options-container" class="space-y-3">
+                        <button onclick="submitPoll('corporate')" class="w-full text-left p-4 rounded-xl bg-slate-800 hover:bg-indigo-900/50 border border-slate-700 hover:border-indigo-500 transition-all flex items-center justify-between group">
+                            <span class="text-sm font-semibold text-slate-200 group-hover:text-white">🏢 Melamar Web Developer Korporasi Mapan</span>
+                            <i class="fa-solid fa-circle-chevron-right text-slate-500 group-hover:text-indigo-400"></i>
+                        </button>
+                        <button onclick="submitPoll('startup')" class="w-full text-left p-4 rounded-xl bg-slate-800 hover:bg-emerald-900/50 border border-slate-700 hover:border-emerald-500 transition-all flex items-center justify-between group">
+                            <span class="text-sm font-semibold text-slate-200 group-hover:text-white">🚀 Merintis Startup Kasir UMKM dari Nol</span>
+                            <i class="fa-solid fa-circle-chevron-right text-slate-500 group-hover:text-emerald-400"></i>
+                        </button>
+                    </div>
+
+                    <!-- Chart Display -->
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 flex flex-col items-center justify-center min-h-[200px]">
+                        <div class="w-full max-w-[280px]">
+                            <canvas id="pollChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Feedback Note -->
+                <div id="poll-feedback" class="hidden p-4 rounded-xl bg-indigo-950/60 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed">
+                    <i class="fa-solid fa-circle-info text-indigo-400 mr-2 text-sm"></i>
+                    <span id="poll-feedback-text"></span>
+                </div>
+            </div>
+
+            <!-- Forward Button -->
+            <div class="flex justify-end">
+                <button onclick="switchTab('loker')" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all">
+                    Lanjut ke Aktivitas 1: Bedah Loker <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ================= TAB 2: BEDAH LOKER (LITERASI A.1.1) ================= -->
+        <section id="tab-content-loker" class="tab-content hidden space-y-6">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass text-indigo-400"></i> Aktivitas 1: Classifier Bedah Loker
+                    </h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Literasi A.1.1: Identifikasi & ekstraksi informasi kualifikasi dari teks lowongan kerja nyata secara presisi.</p>
+                </div>
+
+                <div class="bg-slate-800 px-4 py-2 rounded-xl border border-slate-700 flex items-center gap-3">
+                    <span class="text-xs text-slate-400">Skor Literasi Loker:</span>
+                    <span id="loker-score" class="text-lg font-bold text-emerald-400">0 / 100</span>
+                </div>
+            </div>
+
+            <!-- DUA TEKS LOWONGAN NYATA (SIMULASI JOB BOARD) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Job Card 1: Web Developer -->
+                <div class="glass-card rounded-2xl p-5 border-blue-500/30 space-y-3">
+                    <div class="flex items-start justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-code"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">Frontend / Web Developer</h3>
+                                <p class="text-xs text-slate-400">PT Nusantara Tech Indonesia • Jakarta / Remote</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">Full-time</span>
+                    </div>
+
+                    <div class="text-xs text-slate-300 space-y-2">
+                        <p class="font-semibold text-slate-200">Kebutuhan Spesifikasi:</p>
+                        <p class="text-slate-400 leading-relaxed">
+                            Mencari Web Developer yang menguasai <mark class="bg-indigo-900/80 text-indigo-200 px-1 rounded">HTML5, CSS3, JavaScript ES6+, dan ReactJS</mark>. Bertanggung jawab untuk <mark class="bg-indigo-900/80 text-indigo-200 px-1 rounded">merancang & memelihara antarmuka web responsif serta integrasi REST API</mark>. Memiliki pengalaman menggunakan <mark class="bg-indigo-900/80 text-indigo-200 px-1 rounded">Git & GitHub</mark>. Diutamakan yang memiliki skill <mark class="bg-indigo-900/80 text-indigo-200 px-1 rounded">komunikasi tim yang kuat dan problem solving</mark>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Job Card 2: System Analyst -->
+                <div class="glass-card rounded-2xl p-5 border-emerald-500/30 space-y-3">
+                    <div class="flex items-start justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-diagram-project"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">System Analyst</h3>
+                                <p class="text-xs text-slate-400">Global Synergy Solution • Bogor</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">Full-time</span>
+                    </div>
+
+                    <div class="text-xs text-slate-300 space-y-2">
+                        <p class="font-semibold text-slate-200">Kebutuhan Spesifikasi:</p>
+                        <p class="text-slate-400 leading-relaxed">
+                            Dibutuhkan System Analyst untuk <mark class="bg-emerald-900/80 text-emerald-200 px-1 rounded">melakukan wawancara klien & menggali kebutuhan sistem bisnis</mark>. Wajib menguasai pembuatan <mark class="bg-emerald-900/80 text-emerald-200 px-1 rounded">Dokumentasi Spesifikasi Kebutuhan Sistem (SRS) & Diagram UML</mark>. Memiliki <mark class="bg-emerald-900/80 text-emerald-200 px-1 rounded">penalaran kritis yang tinggi serta Bahasa Inggris aktif</mark> untuk koordinasi dengan tim pengembang.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE CLASSIFIER BOARD -->
+            <div class="glass-card rounded-2xl p-6 space-y-6">
+                <div>
+                    <h3 class="text-base font-bold text-white mb-1"><i class="fa-solid fa-tags text-indigo-400"></i> Kelompokkan Kualifikasi Karir</h3>
+                    <p class="text-xs text-slate-400">Klik item di bank frasa untuk memasukkannya ke dalam kategori yang tepat sesuai analisis loker di atas.</p>
+                </div>
+
+                <!-- Item Bank -->
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <span class="text-xs font-semibold text-slate-400 block">Bank Frasa Kualifikasi (Klik untuk memilih):</span>
+                    <div id="phrase-bank" class="flex flex-wrap gap-2 min-h-[50px] items-center">
+                        <!-- Phrases will be rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Drop Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Category 1: Hard Skills -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-microchip"></i> Hard Skills / Tech Stack
+                        </div>
+                        <div id="cat-hardskill" class="drop-zone min-h-[120px] p-2 bg-slate-950/60 rounded-lg border border-dashed border-slate-700 flex flex-col gap-2"></div>
+                    </div>
+
+                    <!-- Category 2: Soft Skills -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-comments"></i> Soft Skills & Nilai Tambah
+                        </div>
+                        <div id="cat-softskill" class="drop-zone min-h-[120px] p-2 bg-slate-950/60 rounded-lg border border-dashed border-slate-700 flex flex-col gap-2"></div>
+                    </div>
+
+                    <!-- Category 3: Tanggung Jawab -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+                            <i class="fa-solid fa-list-check"></i> Tanggung Jawab Utama
+                        </div>
+                        <div id="cat-jobdesk" class="drop-zone min-h-[120px] p-2 bg-slate-950/60 rounded-lg border border-dashed border-slate-700 flex flex-col gap-2"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <button onclick="resetClassifier()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                        <i class="fa-solid fa-rotate"></i> Reset Kategorisasi
+                    </button>
+                    <button onclick="checkClassifierScore()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20">
+                        <i class="fa-solid fa-check-double"></i> Cek & Evaluasi Jawaban
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex justify-between items-center">
+                <button onclick="switchTab('beranda')" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <button onclick="switchTab('startup')" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm flex items-center gap-2">
+                    Lanjut ke Simulator Startup POS <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ================= TAB 3: SIMULATOR STARTUP POS UMKM (LITERASI A.1.5) ================= -->
+        <section id="tab-content-startup" class="tab-content hidden space-y-6">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-rocket text-emerald-400"></i> Aktivitas 2: Simulator Startup POS UMKM
+                    </h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Literasi A.1.5: Evaluasi kelayakan peluang usaha perangkat lunak & simulasi pembagian peran tim technopreneur.</p>
+                </div>
+
+                <!-- Case Study Badge -->
+                <div class="bg-indigo-950/80 px-4 py-2 rounded-xl border border-indigo-500/30 text-xs">
+                    <span class="text-slate-400">Studi Kasus:</span> <strong class="text-indigo-300">Aplikasi POS Offline-First Sync Cloud</strong>
+                </div>
+            </div>
+
+            <!-- SIMULATOR WIZARD STEPS -->
+            <div class="glass-card rounded-2xl p-6 space-y-6">
+                
+                <!-- Wizard Navigation Header -->
+                <div class="grid grid-cols-3 gap-2 border-b border-slate-800 pb-4 text-center">
+                    <button onclick="setStartupStep(1)" id="step-btn-1" class="step-btn text-xs sm:text-sm font-semibold py-2 rounded-lg bg-indigo-600 text-white">
+                        1. Analisis Masalah UMKM
+                    </button>
+                    <button onclick="setStartupStep(2)" id="step-btn-2" class="step-btn text-xs sm:text-sm font-semibold py-2 rounded-lg bg-slate-800 text-slate-400">
+                        2. Peran Tim 3H
+                    </button>
+                    <button onclick="setStartupStep(3)" id="step-btn-3" class="step-btn text-xs sm:text-sm font-semibold py-2 rounded-lg bg-slate-800 text-slate-400">
+                        3. Risiko & Mitigasi
+                    </button>
+                </div>
+
+                <!-- STEP 1: ANALISIS MASALAH UMKM -->
+                <div id="startup-step-1" class="startup-step-content space-y-4">
+                    <div class="space-y-1">
+                        <h3 class="text-base font-bold text-white">Langkah 1: Identifikasi Masalah Utama UMKM</h3>
+                        <p class="text-xs text-slate-400">Pilih minimal 3 masalah prioritas yang ingin diselesaikan oleh aplikasi POS buatan tim kamu:</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" onchange="updateStartupProblem(this)" value="Pencatatan kas manual sering selisih dan tidak akurat" class="mt-1 rounded text-indigo-600 focus:ring-0">
+                            <span class="text-xs text-slate-300">Pencatatan kas harian manual sering terjadi selisih dan tidak akurat.</span>
+                        </label>
+                        <label class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" onchange="updateStartupProblem(this)" value="Koneksi internet di toko UMKM tidak stabil / sering mati" class="mt-1 rounded text-indigo-600 focus:ring-0">
+                            <span class="text-xs text-slate-300">Koneksi internet di toko UMKM sering mati/tidak terjangkau sinyal kuat.</span>
+                        </label>
+                        <label class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" onchange="updateStartupProblem(this)" value="Pemilik usaha kesulitan memantau stok barang dari jarak jauh" class="mt-1 rounded text-indigo-600 focus:ring-0">
+                            <span class="text-xs text-slate-300">Pemilik usaha sulit memantau stok barang real-time saat tidak berada di lokasi.</span>
+                        </label>
+                        <label class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" onchange="updateStartupProblem(this)" value="Biaya berlangganan aplikasi POS korporasi mahal bagi UMKM" class="mt-1 rounded text-indigo-600 focus:ring-0">
+                            <span class="text-xs text-slate-300">Biaya aplikasi kasir yang ada di pasaran terlalu mahal untuk skala mikro.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- STEP 2: PEMBAGIAN PERAN TIM (3H) -->
+                <div id="startup-step-2" class="startup-step-content hidden space-y-4">
+                    <div class="space-y-1">
+                        <h3 class="text-base font-bold text-white">Langkah 2: Alokasi Tim Startup (Hacker, Hustler, Hipster)</h3>
+                        <p class="text-xs text-slate-400">Tentukan tanggung jawab spesifik untuk masing-masing peran pendiri startup:</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Hacker -->
+                        <div class="bg-slate-900 p-4 rounded-xl border border-blue-500/30 space-y-3">
+                            <div class="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase">
+                                <i class="fa-solid fa-code"></i> Hacker (Teknis & Code)
+                            </div>
+                            <select id="role-hacker" onchange="saveRoles()" class="w-full bg-slate-800 border border-slate-700 text-xs rounded-lg p-2.5 text-slate-200">
+                                <option value="">-- Pilih Tugas Utama --</option>
+                                <option value="Pengembangan Algoritma Sync Offline-to-Cloud & DB">Mengembangkan Algoritma Sync Offline & Database</option>
+                                <option value="Membuat Desain Logo & Prototyping UI">Membuat Desain Logo & Prototyping UI</option>
+                                <option value="Mencari Pembeli & Pitching Investor">Mencari Pembeli & Pitching Investor</option>
+                            </select>
+                        </div>
+
+                        <!-- Hustler -->
+                        <div class="bg-slate-900 p-4 rounded-xl border border-emerald-500/30 space-y-3">
+                            <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase">
+                                <i class="fa-solid fa-chart-line"></i> Hustler (Bisnis & Pemasaran)
+                            </div>
+                            <select id="role-hustler" onchange="saveRoles()" class="w-full bg-slate-800 border border-slate-700 text-xs rounded-lg p-2.5 text-slate-200">
+                                <option value="">-- Pilih Tugas Utama --</option>
+                                <option value="Menyusun Model Bisnis & Strategi Penetapan Harga UMKM">Menyusun Model Bisnis & Strategi Harga UMKM</option>
+                                <option value="Coding REST API & Backend Server">Coding REST API & Backend Server</option>
+                                <option value="Riset User Interface Aplikasi Mobile">Riset User Interface Aplikasi Mobile</option>
+                            </select>
+                        </div>
+
+                        <!-- Hipster -->
+                        <div class="bg-slate-900 p-4 rounded-xl border border-purple-500/30 space-y-3">
+                            <div class="flex items-center gap-2 text-purple-400 font-bold text-xs uppercase">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Hipster (UI/UX & Design)
+                            </div>
+                            <select id="role-hipster" onchange="saveRoles()" class="w-full bg-slate-800 border border-slate-700 text-xs rounded-lg p-2.5 text-slate-200">
+                                <option value="">-- Pilih Tugas Utama --</option>
+                                <option value="Merancang Alur Pengguna (User Flow) Kasir yang Ramah Pengguna">Merancang Alur Pengguna Kasir yang Simpel</option>
+                                <option value="Melakukan Audit Keuangan Startup">Melakukan Audit Keuangan Startup</option>
+                                <option value="Mengelola Infrastructure Server Cloud">Mengelola Infrastructure Server Cloud</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: ANALISIS RISIKO & MITIGASI -->
+                <div id="startup-step-3" class="startup-step-content hidden space-y-4">
+                    <div class="space-y-1">
+                        <h3 class="text-base font-bold text-white">Langkah 3: Matriks Evaluasi Risiko & Strategi Mitigasi</h3>
+                        <p class="text-xs text-slate-400">Analisis potensi risiko terbesar dan tentukan solusi konkrit untuk menjamin kelayakan usaha:</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <label class="text-xs font-bold text-slate-300 block">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> Risiko 1: UMKM Rusak Data saat Mati Listrik / Tanpa Internet
+                            </label>
+                            <input type="text" id="mitigation-1" oninput="saveMitigation()" placeholder="Tuliskan solusi mitigasi (Misal: Penerapan SQLite Lokal & Sync Otomatis saat Online)..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:border-indigo-500">
+                        </div>
+
+                        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <label class="text-xs font-bold text-slate-300 block">
+                                <i class="fa-solid fa-users-slash text-rose-400 mr-1"></i> Risiko 2: Pemilik UMKM Gagap Teknologi / Enggan Beralih dari Buku Kas
+                            </label>
+                            <input type="text" id="mitigation-2" oninput="saveMitigation()" placeholder="Tuliskan solusi mitigasi (Misal: Desain UI ramah pemula & Pelatihan pendampingan langsung)..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Feasibility Score Calculator -->
+                    <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-400 block">Kalkulasi Kelayakan Bisnis:</span>
+                            <span id="feasibility-status" class="text-xs text-slate-300">Lengkapi seluruh analisis langkah 1-3 untuk menghitung skor.</span>
+                        </div>
+                        <span id="feasibility-score" class="text-2xl font-black text-emerald-400">0%</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex justify-between items-center">
+                <button onclick="switchTab('loker')" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <button onclick="switchTab('refleksi')" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm flex items-center gap-2">
+                    Lanjut ke Refleksi & Asesmen <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ================= TAB 4: REFLEKSI & ASESMEN KARIR ================= -->
+        <section id="tab-content-refleksi" class="tab-content hidden space-y-6">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-indigo-400"></i> Jurnal Refleksi Karir Mandiri
+                    </h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">Proyeksikan minat pribadi dengan salah satu profesi PPLG dan susun komitmen langkah konkret.</p>
+                </div>
+
+                <button onclick="window.print()" class="no-print px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20">
+                    <i class="fa-solid fa-print"></i> Cetak / Export Ringkasan PDF
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Form Inputs -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-300">Nama Lengkap Siswa</label>
+                            <input type="text" id="ref-nama" oninput="saveReflection()" placeholder="Contoh: Ahmad Rizki" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-300">Kelas & Rombel</label>
+                            <input type="text" id="ref-kelas" oninput="saveReflection()" placeholder="Contoh: X PPLG 1" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-300">Minat Profesi PPLG Utama yang Dipilih</label>
+                        <select id="ref-profesi" onchange="saveReflection()" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200">
+                            <option value="">-- Pilih Minat Karir --</option>
+                            <option value="Frontend / Web Developer">Frontend / Web Developer</option>
+                            <option value="Backend Developer / API Engineer">Backend Developer / API Engineer</option>
+                            <option value="System Analyst & Software Designer">System Analyst & Software Designer</option>
+                            <option value="UI/UX Designer (Hipster Role)">UI/UX Designer (Hipster Role)</option>
+                            <option value="Technopreneur (Founder Startup IT)">Technopreneur (Founder Startup IT)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-300">Alasan Pemilihan & Keterkaitan Minat Pribadi</label>
+                        <textarea id="ref-alasan" oninput="saveReflection()" rows="3" placeholder="Mengapa profesi tersebut cocok dengan potensi dan passion kamu?..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 custom-scrollbar"></textarea>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-300">Langkah Konkret Persiapan 3 Bulan Ke Depan</label>
+                        <textarea id="ref-langkah" oninput="saveReflection()" rows="3" placeholder="Skill/Teknologi apa yang akan kamu pelajari secara mandiri mulai minggu ini?..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 custom-scrollbar"></textarea>
+                    </div>
+                </div>
+
+                <!-- Live Summary Preview Card -->
+                <div class="glass-card rounded-2xl p-6 space-y-4 border-indigo-500/30 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider mb-3">
+                            <i class="fa-solid fa-address-card"></i> Preview Ringkasan Hasil Siswa
+                        </div>
+                        
+                        <div class="space-y-3 text-xs text-slate-300">
+                            <div>
+                                <span class="text-slate-500 block">Siswa:</span>
+                                <strong id="preview-nama" class="text-white">-</strong> (<span id="preview-kelas">-</span>)
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">Pilihan Karir:</span>
+                                <strong id="preview-profesi" class="text-emerald-400">-</strong>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">Skor Literasi Bedah Loker:</span>
+                                <strong id="preview-loker-score" class="text-indigo-300">0 / 100</strong>
+                            </div>
+                            <div>
+                                <span class="text-slate-500 block">Kelayakan Startup POS:</span>
+                                <strong id="preview-startup-score" class="text-emerald-300">0%</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+                        <i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> Data tersimpan secara otomatis di memori browser lokal kamu.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRINT ONLY SUMMARY VIEW -->
+            <div class="hidden print-only p-8 space-y-6">
+                <div class="border-b-2 border-black pb-4 text-center">
+                    <h1 class="text-xl font-bold">SMKS WIKRAMA BOGOR</h1>
+                    <h2 class="text-base">Laporan Pembelajaran MPI PPLG - Fase E</h2>
+                    <p class="text-xs">Topik: Analisis Kualifikasi Profesi & Prospektus Startup Teknologi</p>
+                </div>
+
+                <div class="space-y-4 text-xs">
+                    <div class="grid grid-cols-2 gap-4">
+                        <p><strong>Nama Siswa:</strong> <span id="print-nama"></span></p>
+                        <p><strong>Kelas:</strong> <span id="print-kelas"></span></p>
+                        <p><strong>Minat Karir:</strong> <span id="print-profesi"></span></p>
+                        <p><strong>Skor Bedah Loker:</strong> <span id="print-skor"></span></p>
+                    </div>
+
+                    <hr>
+
+                    <div>
+                        <strong>Alasan & Refleksi Karir:</strong>
+                        <p id="print-alasan" class="mt-1 italic"></p>
+                    </div>
+
+                    <div>
+                        <strong>Langkah Konkret Pengembangan Diri:</strong>
+                        <p id="print-langkah" class="mt-1 italic"></p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ================= TAB 5: RUBRIK GURU & REKAP ================= -->
+        <section id="tab-content-guru" class="tab-content hidden space-y-6">
+            
+            <div>
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chalkboard-user text-indigo-400"></i> Pedoman Penilaian & Dashboard Guru
+                </h2>
+                <p class="text-slate-400 text-xs sm:text-sm">Rubrik kinerja kelompok/individu dan petunjuk tindak lanjut asesmen (SMKS Wikrama Bogor).</p>
+            </div>
+
+            <!-- RUBRIK TABEL -->
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <div class="p-4 bg-slate-900 border-b border-slate-800 font-bold text-sm text-white flex items-center justify-between">
+                    <span>Rubrik Assessment Kinerja (Penalaran Kritis & Kolaborasi)</span>
+                    <span class="text-xs font-normal text-slate-400">Kurikulum Merdeka</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-900/90 text-slate-400 uppercase font-semibold border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">Tingkat Capaian</th>
+                                <th class="p-3.5">Skor</th>
+                                <th class="p-3.5">Indikator Kinerja Literasi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60">
+                            <tr class="hover:bg-slate-800/40">
+                                <td class="p-3.5 font-bold text-emerald-400">Sangat Baik</td>
+                                <td class="p-3.5 font-bold">4</td>
+                                <td class="p-3.5">Mampu mengidentifikasi 100% kualifikasi dari teks lowongan (A.1.1) dan menyusun argumen sangat logis terkait prospek serta risiko startup berdasarkan isi teks (A.1.5).</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/40">
+                                <td class="p-3.5 font-bold text-blue-400">Sesuai Harapan</td>
+                                <td class="p-3.5 font-bold">3</td>
+                                <td class="p-3.5">Mampu menemukan sebagian besar informasi pada teks lowongan dan menyajikan analisis peluang usaha, namun analisis risiko masih belum menyeluruh.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/40">
+                                <td class="p-3.5 font-bold text-amber-400">Mulai Berkembang</td>
+                                <td class="p-3.5 font-bold">2</td>
+                                <td class="p-3.5">Mengidentifikasi sebagian kecil informasi teknis; analisis startup cenderung menggunakan asumsi pribadi tanpa menyertakan fakta teks.</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/40">
+                                <td class="p-3.5 font-bold text-rose-400">Belum Berkembang</td>
+                                <td class="p-3.5 font-bold">1</td>
+                                <td class="p-3.5">Belum mampu mengekstrak informasi kualifikasi dari teks dan cenderung pasif dalam kegiatan diskusi kelompok.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PROGRAM TINDAK LANJUT -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-2xl p-5 border-amber-500/30 space-y-2">
+                    <h4 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-holding-hand"></i> Program Remedial (Guided Reading)
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Peserta didik yang mengalami kesulitan mengekstrak informasi spesifik dari dokumen teks (A.1.1) akan menerima pendampingan membaca intensif terstruktur bersama guru.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-5 border-indigo-500/30 space-y-2">
+                    <h4 class="text-sm font-bold text-indigo-400 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i> Program Pengayaan (BRD & SRS Corporate)
+                    </h4>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Peserta didik yang telah mencapai kriteria Sangat Baik diberikan tantangan pengayaan berupa analisis dokumen Business Requirements Document (BRD) atau System Requirement Specification (SRS) pada studi kasus skala korporasi.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500 no-print">
+        <p>© 2026 Media Pembelajaran Interaktif PPLG — SMKS WIKRAMA BOGOR. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC ENGINE -->
+    <script>
+        // STATE MANAGEMENT
+        const APP_STORAGE_KEY = 'MPI_PPLG_WIKRAMA_DATA_V1';
+
+        let appState = {
+            pollAnswer: null,
+            pollData: { corporate: 42, startup: 58 },
+            lokerScore: 0,
+            classifierAnswers: {},
+            startupProblems: [],
+            startupRoles: { hacker: '', hustler: '', hipster: '' },
+            startupMitigation: { m1: '', m2: '' },
+            reflection: { nama: '', kelas: '', profesi: '', alasan: '', langkah: '' }
+        };
+
+        // PHRASE BANK FOR LOKER ACTIVITY
+        const PHRASES = [
+            { id: 'p1', text: 'HTML5, CSS3, ReactJS', cat: 'hardskill' },
+            { id: 'p2', text: 'Komunikasi & Kerja Sama Tim', cat: 'softskill' },
+            { id: 'p3', text: 'Merancang & Memelihara REST API', cat: 'jobdesk' },
+            { id: 'p4', text: 'Dokumentasi SRS & Diagram UML', cat: 'hardskill' },
+            { id: 'p5', text: 'Wawancara Klien & Identifikasi Kebutuhan', cat: 'jobdesk' },
+            { id: 'p6', text: 'Pengalaman Git & GitHub', cat: 'hardskill' },
+            { id: 'p7', text: 'Penalaran Kritis & Problem Solving', cat: 'softskill' },
+            { id: 'p8', text: 'Bahasa Inggris Aktif', cat: 'softskill' }
+        ];
+
+        let pollChartInstance = null;
+
+        // INIT ON LOAD
+        window.onload = function() {
+            loadFromLocalStorage();
+            initChart();
+            renderPhrases();
+            updateProgressUI();
+            updatePreviewUI();
+        };
+
+        // LOCAL STORAGE HANDLERS
+        function saveToLocalStorage() {
+            localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(appState));
+            updateProgressUI();
+            updatePreviewUI();
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem(APP_STORAGE_KEY);
+            if (saved) {
+                try {
+                    appState = JSON.parse(saved);
+                    // Repopulate forms
+                    document.getElementById('ref-nama').value = appState.reflection.nama || '';
+                    document.getElementById('ref-kelas').value = appState.reflection.kelas || '';
+                    document.getElementById('ref-profesi').value = appState.reflection.profesi || '';
+                    document.getElementById('ref-alasan').value = appState.reflection.alasan || '';
+                    document.getElementById('ref-langkah').value = appState.reflection.langkah || '';
+
+                    document.getElementById('role-hacker').value = appState.startupRoles.hacker || '';
+                    document.getElementById('role-hustler').value = appState.startupRoles.hustler || '';
+                    document.getElementById('role-hipster').value = appState.startupRoles.hipster || '';
+
+                    document.getElementById('mitigation-1').value = appState.startupMitigation.m1 || '';
+                    document.getElementById('mitigation-2').value = appState.startupMitigation.m2 || '';
+                } catch(e) {
+                    console.error("Failed to parse local storage", e);
+                }
+            }
+        }
+
+        function resetData() {
+            if(confirm("Apakah kamu yakin ingin mengulang seluruh progres pembelajaran?")) {
+                localStorage.removeItem(APP_STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        // NAVIGATION TAB SWITCHER
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'font-semibold');
+                btn.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if(activeNav) {
+                activeNav.classList.add('bg-indigo-600', 'text-white', 'font-semibold');
+                activeNav.classList.remove('text-slate-400');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // DILEMMA SELECTION
+        function selectDilemma(type) {
+            document.getElementById('card-corporate').classList.remove('border-indigo-500', 'bg-indigo-950/40');
+            document.getElementById('card-startup').classList.remove('border-emerald-500', 'bg-emerald-950/40');
+
+            if(type === 'corporate') {
+                document.getElementById('card-corporate').classList.add('border-indigo-500', 'bg-indigo-950/40');
+                showToast("Kamu memilih perspektif Karir Korporasi Mapan!", "info");
+            } else {
+                document.getElementById('card-startup').classList.add('border-emerald-500', 'bg-emerald-950/40');
+                showToast("Kamu memilih perspektif Merintis Startup Technopreneur!", "success");
+            }
+        }
+
+        // POLLING FUNCTION
+        function initChart() {
+            const ctx = document.getElementById('pollChart').getContext('2d');
+            pollChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Corporate Dev', 'Startup POS'],
+                    datasets: [{
+                        data: [appState.pollData.corporate, appState.pollData.startup],
+                        backgroundColor: ['#6366f1', '#10b981'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function submitPoll(type) {
+            appState.pollAnswer = type;
+            if(type === 'corporate') {
+                appState.pollData.corporate += 1;
+            } else {
+                appState.pollData.startup += 1;
+            }
+
+            pollChartInstance.data.datasets[0].data = [appState.pollData.corporate, appState.pollData.startup];
+            pollChartInstance.update();
+
+            const feedbackEl = document.getElementById('poll-feedback');
+            const feedbackText = document.getElementById('poll-feedback-text');
+            feedbackEl.classList.remove('hidden');
+
+            if(type === 'corporate') {
+                feedbackText.innerHTML = "<strong>Analisis Pilihan:</strong> Karir Korporasi sangat tepat bagi kamu yang menyukai kepastian proses, standar kualitas tinggi (SLA), dan spesialisasi mendalam.";
+            } else {
+                feedbackText.innerHTML = "<strong>Analisis Pilihan:</strong> Rintis Startup menguji jiwa keberanian, adaptasi cepat, serta kepemimpinan multi-disiplin technopreneurship!";
+            }
+
+            saveToLocalStorage();
+            confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
+            showToast("Pilihan polling kamu berhasil dicatat!", "success");
+        }
+
+        // MODUL 2: LOKER CLASSIFIER LOGIC
+        function renderPhrases() {
+            const bank = document.getElementById('phrase-bank');
+            bank.innerHTML = '';
+            
+            PHRASES.forEach(item => {
+                if(!appState.classifierAnswers[item.id]) {
+                    const btn = document.createElement('div');
+                    btn.className = "px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-indigo-600 text-xs text-slate-200 cursor-pointer border border-slate-700 transition-all font-medium flex items-center gap-1.5";
+                    btn.innerHTML = `<i class="fa-solid fa-plus text-[10px] text-indigo-400"></i> ${item.text}`;
+                    btn.onclick = () => selectPhrase(item);
+                    bank.appendChild(btn);
+                }
+            });
+
+            // Render placed categories
+            ['hardskill', 'softskill', 'jobdesk'].forEach(cat => {
+                const zone = document.getElementById(`cat-${cat}`);
+                zone.innerHTML = '';
+                Object.keys(appState.classifierAnswers).forEach(phraseId => {
+                    if(appState.classifierAnswers[phraseId] === cat) {
+                        const item = PHRASES.find(p => p.id === phraseId);
+                        const tag = document.createElement('div');
+                        tag.className = "px-2.5 py-1 rounded-md bg-slate-800 text-xs text-slate-200 flex items-center justify-between border border-slate-700";
+                        tag.innerHTML = `<span>${item.text}</span> <i class="fa-solid fa-xmark text-slate-500 hover:text-rose-400 cursor-pointer text-xs ml-2" onclick="removePhrase('${item.id}')"></i>`;
+                        zone.appendChild(tag);
+                    }
+                });
+            });
+        }
+
+        function selectPhrase(item) {
+            // Prompt target category visually or cycle through
+            const cat = prompt(`Pilih Kategori untuk "${item.text}":\n1 = Hard Skills\n2 = Soft Skills\n3 = Tanggung Jawab`);
+            if(cat === '1') appState.classifierAnswers[item.id] = 'hardskill';
+            else if(cat === '2') appState.classifierAnswers[item.id] = 'softskill';
+            else if(cat === '3') appState.classifierAnswers[item.id] = 'jobdesk';
+
+            renderPhrases();
+            saveToLocalStorage();
+        }
+
+        function removePhrase(phraseId) {
+            delete appState.classifierAnswers[phraseId];
+            renderPhrases();
+            saveToLocalStorage();
+        }
+
+        function resetClassifier() {
+            appState.classifierAnswers = {};
+            appState.lokerScore = 0;
+            document.getElementById('loker-score').innerText = '0 / 100';
+            renderPhrases();
+            saveToLocalStorage();
+        }
+
+        function checkClassifierScore() {
+            let correct = 0;
+            const total = PHRASES.length;
+
+            PHRASES.forEach(item => {
+                if(appState.classifierAnswers[item.id] === item.cat) {
+                    correct++;
+                }
+            });
+
+            const score = Math.round((correct / total) * 100);
+            appState.lokerScore = score;
+            document.getElementById('loker-score').innerText = `${score} / 100`;
+
+            if(score === 100) {
+                confetti({ particleCount: 100, spread: 70 });
+                showToast("Luar Biasa! Pemahaman Kualifikasi Loker 100% Sempurna!", "success");
+            } else {
+                showToast(`Skor Akurasi Literasi: ${score}%. Cek kembali pengelompokanmu!`, "info");
+            }
+
+            saveToLocalStorage();
+        }
+
+        // MODUL 3: STARTUP SIMULATOR LOGIC
+        function setStartupStep(step) {
+            document.querySelectorAll('.startup-step-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.step-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-400');
+            });
+
+            document.getElementById(`startup-step-${step}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`step-btn-${step}`);
+            activeBtn.classList.add('bg-indigo-600', 'text-white');
+            activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+        }
+
+        function updateStartupProblem(cb) {
+            if(cb.checked) {
+                appState.startupProblems.push(cb.value);
+            } else {
+                appState.startupProblems = appState.startupProblems.filter(p => p !== cb.value);
+            }
+            calculateFeasibility();
+            saveToLocalStorage();
+        }
+
+        function saveRoles() {
+            appState.startupRoles.hacker = document.getElementById('role-hacker').value;
+            appState.startupRoles.hustler = document.getElementById('role-hustler').value;
+            appState.startupRoles.hipster = document.getElementById('role-hipster').value;
+            calculateFeasibility();
+            saveToLocalStorage();
+        }
+
+        function saveMitigation() {
+            appState.startupMitigation.m1 = document.getElementById('mitigation-1').value;
+            appState.startupMitigation.m2 = document.getElementById('mitigation-2').value;
+            calculateFeasibility();
+            saveToLocalStorage();
+        }
+
+        function calculateFeasibility() {
+            let score = 0;
+            if(appState.startupProblems.length >= 2) score += 35;
+            if(appState.startupRoles.hacker && appState.startupRoles.hustler && appState.startupRoles.hipster) score += 35;
+            if(appState.startupMitigation.m1.length > 5 && appState.startupMitigation.m2.length > 5) score += 30;
+
+            document.getElementById('feasibility-score').innerText = `${score}%`;
+            const statusEl = document.getElementById('feasibility-status');
+
+            if(score >= 80) {
+                statusEl.innerText = "Status: Sangat Layak & Execution Ready!";
+                statusEl.className = "text-xs font-bold text-emerald-400 block";
+            } else {
+                statusEl.innerText = "Status: Perlu Pelengkapan Analisis Risiko & Peran Tim.";
+                statusEl.className = "text-xs text-amber-400 block";
+            }
+        }
+
+        // MODUL 4: REFLECTION FORM
+        function saveReflection() {
+            appState.reflection.nama = document.getElementById('ref-nama').value;
+            appState.reflection.kelas = document.getElementById('ref-kelas').value;
+            appState.reflection.profesi = document.getElementById('ref-profesi').value;
+            appState.reflection.alasan = document.getElementById('ref-alasan').value;
+            appState.reflection.langkah = document.getElementById('ref-langkah').value;
+
+            updatePreviewUI();
+            saveToLocalStorage();
+        }
+
+        function updatePreviewUI() {
+            document.getElementById('preview-nama').innerText = appState.reflection.nama || '-';
+            document.getElementById('preview-kelas').innerText = appState.reflection.kelas || '-';
+            document.getElementById('preview-profesi').innerText = appState.reflection.profesi || '-';
+            document.getElementById('preview-loker-score').innerText = `${appState.lokerScore} / 100`;
+
+            // Calculate feasibility inline
+            let fScore = 0;
+            if(appState.startupProblems.length >= 2) fScore += 35;
+            if(appState.startupRoles.hacker && appState.startupRoles.hustler && appState.startupRoles.hipster) fScore += 35;
+            if(appState.startupMitigation.m1.length > 5 && appState.startupMitigation.m2.length > 5) fScore += 30;
+
+            document.getElementById('preview-startup-score').innerText = `${fScore}%`;
+
+            // Print elements
+            document.getElementById('print-nama').innerText = appState.reflection.nama || '-';
+            document.getElementById('print-kelas').innerText = appState.reflection.kelas || '-';
+            document.getElementById('print-profesi').innerText = appState.reflection.profesi || '-';
+            document.getElementById('print-skor').innerText = `${appState.lokerScore} / 100`;
+            document.getElementById('print-alasan').innerText = appState.reflection.alasan || '-';
+            document.getElementById('print-langkah').innerText = appState.reflection.langkah || '-';
+        }
+
+        // OVERALL PROGRESS CALCULATOR
+        function updateProgressUI() {
+            let progress = 0;
+            if(appState.pollAnswer) progress += 20;
+            if(appState.lokerScore > 0) progress += 25;
+            if(appState.startupProblems.length > 0) progress += 15;
+            if(appState.startupRoles.hacker) progress += 15;
+            if(appState.reflection.profesi) progress += 25;
+
+            document.getElementById('overall-progress-bar').style.width = `${progress}%`;
+            document.getElementById('overall-progress-text').innerText = `${progress}%`;
+        }
+
+        // TOAST NOTIFICATION UTILITY
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' : 'bg-indigo-600 text-white';
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-info';
+
+            toast.className = `p-3.5 rounded-xl ${bgClass} shadow-xl flex items-center gap-2.5 text-xs font-semibold transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
